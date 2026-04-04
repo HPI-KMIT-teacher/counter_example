@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Counter_example</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; padding: 2rem; }
+        .counter { font-size: 4rem; font-weight: bold; margin: 1rem; }
+        button { font-size: 1.5rem; padding: 10px 30px; margin: 5px; cursor: pointer; }
+        .log { margin-top: 1rem; font-size: 0.9rem; color: #666; }
+      </style>
+</head>
+<body>
+    <h2>Лічильник v1 — Ручний DOM</h2>
+
+    <div class="counter" id="display">0</div>
+    <div id="status">Нейтральне значення</div>
+
+    <button onclick="decrement()">−</button>
+    <button onclick="reset()">↺</button>
+    <button onclick="increment()">+</button>
+
+    <div class="log" id="log"></div>
+
+    <script>
+        // СТАН - просто змінна
+        let count = 0;
+
+        function render () {
+            document.getElementById("display").textContent = count;
+            document.getElementById("status").textContent = 
+            count > 0 ? "Позитивне" : count < 0 ? "Негативне" : "Нейтральне значення";
+            document.getElementById("display").style.color = 
+            count > 0 ? "green" : count < 0 ? "red" : "black";
+            document.getElementById("log").textContent = 
+            `Значення: ${count} | Оновлено: ${new Date().toLocaleTimeString()}`
+        }
+
+        function increment() {
+            count++;
+            render();
+        }
+
+        function decrement() {
+            count--;
+            render();
+        }
+
+        function reset() {
+            count = 0;
+            render();
+        }
+
+        render();
+    </script>
+</body>
+</html>
