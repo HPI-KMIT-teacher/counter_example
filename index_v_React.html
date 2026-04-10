@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <title>Лічильник у React</title>
+  <!-- React через CDN — для демонстрації синтаксису -->
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    body { font-family: sans-serif; display: flex; justify-content: center;
+           gap: 2rem; flex-wrap: wrap; padding: 2rem; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    // ── Один компонент Counter
+    function Counter({ label = "Лічильник", step = 1, min = -Infinity, max = Infinity }) {
+
+      // useState — аналог нашого Proxy-стану
+      const [count, setCount] = React.useState(0);
+
+      const increment = () => { if (count < max) setCount(count + step); };
+      const decrement = () => { if (count > min) setCount(count - step); };
+      const reset     = () => setCount(0);
+
+      const color = count > 0 ? "#27ae60" : count < 0 ? "#e74c3c" : "#333";
+
+      // JSX — аналог нашого template()
+      return (
+        <div style={{
+          border: "2px solid #ddd", borderRadius: "12px",
+          padding: "1.5rem", textAlign: "center", minWidth: "200px"
+        }}>
+          <h3 style={{ margin: "0 0 1rem" }}>{label}</h3>
+
+          <div style={{ fontSize: "3.5rem", fontWeight: "bold", color }}>
+            {count}
+          </div>
+
+          <div style={{ fontSize: "0.85rem", color: "#999", marginBottom: "1rem" }}>
+            Крок: {step}
+          </div>
+
+          <div>
+            <button onClick={decrement} style={{ fontSize: "1.5rem", padding: "6px 18px", margin: "3px", cursor: "pointer", borderRadius: "6px", border: "1px solid #ccc" }}>−</button>
+            <button onClick={reset}     style={{ fontSize: "1rem",   padding: "6px 14px", margin: "3px", cursor: "pointer", borderRadius: "6px", border: "1px solid #ccc" }}>↺</button>
+            <button onClick={increment} style={{ fontSize: "1.5rem", padding: "6px 18px", margin: "3px", cursor: "pointer", borderRadius: "6px", border: "1px solid #ccc" }}>+</button>
+          </div>
+        </div>
+      );
+    }
+
+    // ── Використання: просто теги!
+    function App() {
+      return (
+        <div style={{ display: "flex", gap: "2rem", flexWrap: "wrap", justifyContent: "center" }}>
+          <Counter label="🍎 Яблука"       step={1} min={0} max={10} />
+          <Counter label="🍊 Апельсини"    step={2} min={0} />
+          <Counter label="🌡️ Температура"  step={5} />
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+  </script>
+</body>
+</html>

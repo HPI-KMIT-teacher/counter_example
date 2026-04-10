@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Counter_example</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; padding: 2rem; }
+        .counter { font-size: 4rem; font-weight: bold; margin: 1rem; }
+        button { font-size: 1.5rem; padding: 10px 30px; margin: 5px; cursor: pointer; }
+        .log { margin-top: 1rem; font-size: 0.9rem; color: #666; }
+      </style>
+</head>
+<body>
+
+    <div style="display: flex; gap: 2rem; flex-wrap: wrap; justify-content: center; padding: 2rem;">
+        <div id="counter1"></div>
+        <div id="counter2"></div>
+        <div id="counter3"></div>
+        <div id="counter4"></div>
+      </div>
+      <div id="total" style="text-align:center; font-size: 1.5rem; margin-top: 1rem;"></div>
+
+    <script>
+        // Counter — самодостатній компонент з власним станом і рендером
+        class Counter {
+        constructor(containerId, options = {}) {
+            this.container = document.getElementById(containerId);
+            this.label = options.label || "Лічильник";
+            this.step = options.step || 1;      // крок зміни
+            this.min = options.min ?? -Infinity;
+            this.max = options.max ?? Infinity;
+
+            // Реактивний стан
+            this.state = new Proxy(
+            { count: options.initial || 0 },
+            {
+                set: (target, key, value) => {
+                target[key] = value;
+                this.render(); // ← this.render, не просто render
+                return true;
+                }
+            }
+            );
+
+            this.render();
+            this.bindEvents();
+        }
+
+        // Шаблон HTML для компонента
+        template() {
+            const { count } = this.state;
+            const color = count > 0 ? "#27ae60" : count < 0 ? "#e74c3c" : "#333";
+
+            return `
+            <div class="counter-widget" style="
+                border: 2px solid #ddd;
+                border-radius: 12px;
+                padding: 1.5rem;
+                text-align: center;
+                min-width: 200px;
+                font-family: sans-serif;
+            ">
+                <h3 style="margin: 0 0 1rem">${this.label}</h3>
+
+                <div style="font-size: 3.5rem; font-weight: bold; color: ${color}">
+                ${count}
+                </div>
+
+                <div style="font-size: 0.85rem; color: #999; margin-bottom: 1rem">
+                ${count > this.max - this.step ? "⚠️ Максимум" :
+                    count < this.min + this.step ? "⚠️ Мінімум" :
+                    `Крок: ${this.step}`}
+                </div>
+
+                <div>
+                <button class="btn-dec" style="font-size: 1.5rem; padding: 6px 18px; margin: 3px; cursor: pointer; border-radius: 6px; border: 1px solid #ccc">−</button>
+                <button class="btn-reset" style="font-size: 1rem; padding: 6px 14px; margin: 3px; cursor: pointer; border-radius: 6px; border: 1px solid #ccc">↺</button>
+                <button class="btn-inc" style="font-size: 1.5rem; padding: 6px 18px; margin: 3px; cursor: pointer; border-radius: 6px; border: 1px solid #ccc">+</button>
+                </div>
+            </div>
+            `;
+        }
+
+        render() {
+            this.container.innerHTML = this.template();
+            this.bindEvents(); // після кожного рендеру підключаємо події
+        }
+
+        bindEvents() {
+            this.container.querySelector(".btn-inc")
+            ?.addEventListener("click", () => this.increment());
+            this.container.querySelector(".btn-dec")
+            ?.addEventListener("click", () => this.decrement());
+            this.container.querySelector(".btn-reset")
+            ?.addEventListener("click", () => this.reset());
+        }
+
+        increment() {
+            if (this.state.count < this.max) {
+            this.state.count += this.step; // render() автоматично!
+            }
+        }
+
+        decrement() {
+            if (this.state.count > this.min) {
+            this.state.count -= this.step;
+            }
+        }
+
+        reset() {
+            this.state.count = 0;
+        }
+
+        getValue() {
+            return this.state.count;
+        }
+        }
+
+        // Три незалежних лічильники — різні налаштування, один клас!
+        const c1 = new Counter("counter1", { label: "🍎 Яблука", step: 1, min: 0, max: 10 });
+        const c2 = new Counter("counter2", { label: "🍊 Апельсини", step: 2, min: 0 });
+        const c3 = new Counter("counter3", { label: "🌡️ Температура", step: 5, initial: 20 });
+        const c4 = new Counter("counter4", { label: " Money", step: 25, initial: 100 });
+
+        // Показуємо суму в реальному часі
+        // (можна зробити через подію або інтервал — для простоти interval)
+        // setInterval(() => {
+        //     const total = c1.getValue() + c2.getValue() + c3.getValue() + c4.getValue();
+        //     document.getElementById("total").textContent = `Сума всіх: ${total}`;
+        // }, 100);
+    </script>
+</body>
+</html>

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Counter_example</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; padding: 2rem; }
+        .counter { font-size: 4rem; font-weight: bold; margin: 1rem; }
+        button { font-size: 1.5rem; padding: 10px 30px; margin: 5px; cursor: pointer; }
+        .log { margin-top: 1rem; font-size: 0.9rem; color: #666; }
+      </style>
+</head>
+<body>
+    <h2>Лічильник v1 — Ручний DOM</h2>
+
+    <div class="counter" id="display">0</div>
+    <div id="status">Нейтральне значення</div>
+
+    <button onclick="decrement()">−</button>
+    <button onclick="reset()">↺</button>
+    <button onclick="increment()">+</button>
+
+    <div class="log" id="log"></div>
+
+    <script>
+        function reactive(data, onChange) {
+            return new Proxy(data, {
+                set(target, key, value) {
+                    target[key] = value; // зберігаємо значення
+                    onChange(); // автоматично оновлюємо DOM
+                    return true;
+                }
+            })
+        }
+
+        // Стан — звичайний об'єкт
+        const state = reactive(
+            { count: 0 }, // початковий стан
+            render  // функція яка викликається при БУДЬ-якій зміні
+        )
+
+        function render () {
+        document.getElementById("display").textContent = state.count;
+        document.getElementById("status").textContent = 
+        state.count > 0 ? "Позитивне" : state.count < 0 ? "Негативне" : "Нейтральне значення";
+        document.getElementById("display").style.color = 
+        state.count > 0 ? "green" : state.count < 0 ? "red" : "black";
+        document.getElementById("log").textContent = 
+        `Значення: ${state.count} | Оновлено: ${new Date().toLocaleTimeString()}`
+        }
+
+        function increment() { state.count++; }
+        function decrement() { state.count--; }
+        function reset() { state.count = 0; }
+/*
+        const target = { count: 0, name: "JS"};
+
+        const handler = {
+            // get-trap — спрацьовує при ЧИТАННІ будь-якої властивості
+            get(target, key) {
+                console.log(`${key} was read`);
+                return target[key]; // повертаємо оригінальне значення
+            },
+
+            // set-trap — спрацьовує при ЗАПИСІ будь-якої властивості
+            set(target, key, value) {
+                console.log(`${key} = ${value} was set`);
+                target[key] = value; // зберігаємо значення
+                return true;  // ❗ обов'язково повернути true
+            }
+        };
+
+        const proxy = new Proxy(target, handler)
+*/
+        /*
+            target — оригінальний об'єкт, який «загортаємо»
+            handler — об'єкт з «пастками» (traps) — функціями, що перехоплюють операції
+        */
+
+        /*
+        const handler = {
+        get(target, key) { },          // читання: proxy.key
+        set(target, key, value) { },   // запис: proxy.key = value
+        has(target, key) { },          // перевірка: "key" in proxy
+        deleteProperty(target, key) { } // видалення: delete proxy.key
+        };
+        */
+    </script>
+</body>
+</html>
